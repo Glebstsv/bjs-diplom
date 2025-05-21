@@ -1,12 +1,27 @@
 "use strict";
 
+function showMessage(text, isSuccess = true) {
+  const messageBlock = document.getElementById("message");
+  if (!messageBlock) return;
+  messageBlock.textContent = text;
+  messageBlock.style.display = "block";
+  messageBlock.style.background = isSuccess ? "#d4edda" : "#f8d7da";
+  messageBlock.style.color = isSuccess ? "#155724" : "#721c24";
+  messageBlock.style.border =
+    "1px solid " + (isSuccess ? "#c3e6cb" : "#f5c6cb");
+  setTimeout(() => {
+    messageBlock.style.display = "none";
+    messageBlock.textContent = "";
+  }, 4000);
+}
+
 const logoutButton = new LogoutButton();
 logoutButton.action = () => {
   ApiConnector.logout((response) => {
     if (response.success) {
       window.location.href = "/";
     } else {
-      alert(response.error || "Ошибка при выходе.");
+      showMessage(response.error || "Ошибка при выходе.", false);
     }
   });
 };
@@ -15,7 +30,10 @@ ApiConnector.current((response) => {
   if (response.success) {
     ProfileWidget.showProfile(response.data);
   } else {
-    alert(response.error || "Не удалось загрузить данные пользователя.");
+    showMessage(
+      response.error || "Не удалось загрузить данные пользователя.",
+      false
+    );
   }
 });
 
@@ -26,7 +44,7 @@ const updateRates = () => {
       ratesBoard.clearTable();
       ratesBoard.fillTable(response.data);
     } else {
-      alert(response.error || "Ошибка при загрузке курсов валют.");
+      showMessage(response.error || "Ошибка при загрузке курсов валют.", false);
     }
   });
 };
@@ -39,9 +57,9 @@ moneyManager.addMoneyCallback = (data) => {
   ApiConnector.addMoney(data, (response) => {
     if (response.success) {
       ProfileWidget.showProfile(response.data);
-      alert("Баланс успешно пополнен.");
+      showMessage("Баланс успешно пополнен.", true);
     } else {
-      alert(response.error || "Ошибка при пополнении баланса.");
+      showMessage(response.error || "Ошибка при пополнении баланса.", false);
     }
   });
 };
@@ -50,9 +68,9 @@ moneyManager.conversionMoneyCallback = (data) => {
   ApiConnector.convertMoney(data, (response) => {
     if (response.success) {
       ProfileWidget.showProfile(response.data);
-      alert("Конвертация выполнена успешно.");
+      showMessage("Конвертация выполнена успешно.", true);
     } else {
-      alert(response.error || "Ошибка при конвертации валюты.");
+      showMessage(response.error || "Ошибка при конвертации валюты.", false);
     }
   });
 };
@@ -61,9 +79,9 @@ moneyManager.sendMoneyCallback = (data) => {
   ApiConnector.transferMoney(data, (response) => {
     if (response.success) {
       ProfileWidget.showProfile(response.data);
-      alert("Перевод выполнен успешно.");
+      showMessage("Перевод выполнен успешно.", true);
     } else {
-      alert(response.error || "Ошибка при переводе валюты.");
+      showMessage(response.error || "Ошибка при переводе валюты.", false);
     }
   });
 };
@@ -77,7 +95,10 @@ const updateFavorites = () => {
       favoritesWidget.fillTable(response.data);
       moneyManager.updateUsersList(response.data);
     } else {
-      alert(response.error || "Ошибка при загрузке списка избранного.");
+      showMessage(
+        response.error || "Ошибка при загрузке списка избранного.",
+        false
+      );
     }
   });
 };
@@ -86,10 +107,15 @@ updateFavorites();
 favoritesWidget.addUserCallback = (data) => {
   ApiConnector.addUserToFavorites(data, (response) => {
     if (response.success) {
-      updateFavorites();
-      alert("Пользователь успешно добавлен в избранное.");
+      favoritesWidget.clearTable();
+      favoritesWidget.fillTable(response.data);
+      moneyManager.updateUsersList(response.data);
+      showMessage("Пользователь успешно добавлен в избранное.", true);
     } else {
-      alert(response.error || "Ошибка при добавлении в избранное.");
+      showMessage(
+        response.error || "Ошибка при добавлении в избранное.",
+        false
+      );
     }
   });
 };
@@ -97,10 +123,15 @@ favoritesWidget.addUserCallback = (data) => {
 favoritesWidget.removeUserCallback = (data) => {
   ApiConnector.removeUserFromFavorites(data, (response) => {
     if (response.success) {
-      updateFavorites();
-      alert("Пользователь успешно удалён из избранного.");
+      favoritesWidget.clearTable();
+      favoritesWidget.fillTable(response.data);
+      moneyManager.updateUsersList(response.data);
+      showMessage("Пользователь успешно удалён из избранного.", true);
     } else {
-      alert(response.error || "Ошибка при удалении из избранного.");
+      showMessage(
+        response.error || "Ошибка при удалении из избранного.",
+        false
+      );
     }
   });
 };
